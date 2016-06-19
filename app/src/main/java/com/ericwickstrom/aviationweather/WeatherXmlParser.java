@@ -1,17 +1,18 @@
 package com.ericwickstrom.aviationweather;
 
+import android.util.Log;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.StringReader;
+
 /**
  * Created by beardsmcgee on 6/18/16.
  */
 public class WeatherXmlParser {
 
-    public String parse(){
-        String rString = "";
-        return rString;
-    }
-
-
-    private String testXml = "<response xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XML-Schema-instance\" version=\"1.2\" xsi:noNamespaceSchemaLocation=\"http://aviationweather.gov/adds/schema/metar1_2.xsd\">\n" +
+    private static String testXml = "<response xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XML-Schema-instance\" version=\"1.2\" xsi:noNamespaceSchemaLocation=\"http://aviationweather.gov/adds/schema/metar1_2.xsd\">\n" +
             "<request_index>40550284</request_index>\n" +
             "<data_source name=\"metars\"/>\n" +
             "<request type=\"retrieve\"/>\n" +
@@ -45,5 +46,51 @@ public class WeatherXmlParser {
             "</METAR>\n" +
             "</data>\n" +
             "</response>";
+
+    public static String parse(String xml) {
+
+        String rString = "";
+        try {
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XmlPullParser xpp = factory.newPullParser();
+            xpp.setInput(new StringReader(xml));
+            int eventType = xpp.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+            /*
+                    if(eventType == XmlPullParser.START_DOCUMENT) {
+                        Log.v("XML", "Start document");
+                    } else if(eventType == XmlPullParser.END_DOCUMENT) {
+                        Log.v("XML", "End document");
+                    } else if(eventType == XmlPullParser.START_TAG) {
+                        Log.v("XML", "Start tag "+xpp.getName());
+                        if("raw_text".equals(xpp.getName())){
+                            Log.v("METAR","************** METAR ************** ");
+                            xpp.next();
+                            Log.v("METAR", xpp.getText());
+                        }
+                    } else if(eventType == XmlPullParser.END_TAG) {
+                        Log.v("XML", "End tag "+xpp.getName());
+                    } else if(eventType == XmlPullParser.TEXT) {
+                        Log.v("XML", "Text "+xpp.getText());
+                    }
+
+            */
+                if (eventType == XmlPullParser.START_TAG) {
+                    if ("raw_text".equals(xpp.getName())) {
+                        xpp.next();
+                        return xpp.getText();
+                    }
+                }
+
+
+                eventType = xpp.next();
+            }
+
+        } catch (Exception e) {
+            Log.e("ERROR", e.toString());
+        }
+        return "derps";
+    }
 
 }
